@@ -18,7 +18,7 @@
                 <small id="countHelp" class="form-text text-muted">Не обов'язково для заповнення</small>
             </div>
             <button onclick="getNews($('#count').val())" class="btn btn-primary">Старт</button>
-            <button class="btn btn-primary">Очистити</button>
+            <button onclick="resetTable()" class="btn btn-primary">Очистити</button>
             <table style="display: none;" class="table">
                 <thead>
                     <tr>
@@ -52,6 +52,11 @@
                 });
                 $('table').slideDown('slow');
             });
+        }
+        
+        function resetTable() {
+            $('table').slideUp('slow');
+            $("tbody").empty()
         }
     </script>
     </body>
