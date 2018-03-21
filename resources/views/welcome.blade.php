@@ -39,6 +39,12 @@
         <script src="{{ asset('js/jquery.min.js') }}"></script>
     <script>
         var newsJSON;
+
+        /**
+         * Получает с сервера список новостей и выводит их в таблицу
+         *
+         * @param count
+         */
         function getNews(count) {
             $.getJSON('get_news?count='+count, function(data){
                 newsJSON = data;
@@ -48,25 +54,42 @@
                     if (val.is_important) {
                         trClass = 'info';
                     }
-                    markers = '';
-                    $.each(val.markers, function(key, val){
-                        markers += val + ', ';
-                    });
-                    markers = markers.substring(0, markers.length - 2);
+                    markers = markersToString(val.markers);
                     $('<tr class="' + trClass + '"><td>' + key + '</td><td>' + val.time + '</td><td><a href=\"' + val.url + '">' + val.title + '</a></td><td>' + markers + '</td></tr>').appendTo('tbody');
                 });
                 $('table').slideDown('slow');
                 $('#csv').slideDown('slow');
             });
         }
-        
+
+        /**
+         * преобразует массив маркеров в строку
+         *
+         * @param markersArray
+         * @returns string
+         */
+        function markersToString(markersArray) {
+            markers = '';
+            $.each(markersArray, function(key, val){
+                markers += val + ', ';
+            });
+            markers = markers.substring(0, markers.length - 2);
+            return markers;
+        }
+
+        /**
+         * Возвращает страницу к первоначальному виду
+         */
         function resetTable() {
             $('#save_csv').slideUp('slow');
             $('#csv').slideUp('slow');
             $('table').slideUp('slow');
             $("tbody").empty();
         }
-        
+
+        /**
+         * Генерирует CSV
+         */
         function saveToCSV() {
             const rows = [["name1", "city1", "some other info"], ["name2", "city2", "more info"]];
             csvContent = "data:text/csv;charset=utf-8,";
@@ -80,11 +103,7 @@
                 row += title + ',';
                 row += val.url + ',';
                 row += val.is_important + ',';
-                markers = "";
-                $.each(val.markers, function(key, val){
-                    markers += val + ', ';
-                });
-                markers = markers.substring(0, markers.length - 2);
+                markers = markersToString(val.markers);
                 if (markers.length > 0){
                     markers = '"' + markers + '"';
                 }
