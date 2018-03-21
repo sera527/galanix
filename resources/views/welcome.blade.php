@@ -31,12 +31,17 @@
                 <tbody>
                 </tbody>
             </table>
+            <button id="csv" style="display: none;" onclick="saveToCSV()" class="btn btn-success">Зберегти в CSV</button>
+            <a id="save_csv" style="display: none;" href="" class="btn btn-primary">Зберегти</a>
+            <br>
         </div>
         <!-- Scripts -->
         <script src="{{ asset('js/jquery.min.js') }}"></script>
     <script>
+        var newsJSON;
         function getNews(count) {
             $.getJSON('get_news?count='+count, function(data){
+                newsJSON = data;
                 $.each(data, function(key, val){
                     key += 1;
                     trClass = '';
@@ -51,12 +56,44 @@
                     $('<tr class="' + trClass + '"><td>' + key + '</td><td>' + val.time + '</td><td><a href=\"' + val.url + '">' + val.title + '</a></td><td>' + markers + '</td></tr>').appendTo('tbody');
                 });
                 $('table').slideDown('slow');
+                $('#csv').slideDown('slow');
             });
         }
         
         function resetTable() {
+            $('#save_csv').slideUp('slow');
+            $('#csv').slideUp('slow');
             $('table').slideUp('slow');
-            $("tbody").empty()
+            $("tbody").empty();
+        }
+        
+        function saveToCSV() {
+            const rows = [["name1", "city1", "some other info"], ["name2", "city2", "more info"]];
+            csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "№,Час публікації,Заголовок,Посилання,Важлива,Мітки\r\n";
+            $.each(newsJSON, function(key, val){
+                key += 1;
+                row = key + ',';
+                row += val.time + ',';
+                title = val.title.replace(new RegExp('"','g'),'""');
+                title = '"' + title + '"';
+                row += title + ',';
+                row += val.url + ',';
+                row += val.is_important + ',';
+                markers = "";
+                $.each(val.markers, function(key, val){
+                    markers += val + ', ';
+                });
+                markers = markers.substring(0, markers.length - 2);
+                if (markers.length > 0){
+                    markers = '"' + markers + '"';
+                }
+                row += markers;
+                csvContent += row + "\r\n";
+            });
+            var encodedUri = encodeURI(csvContent);
+            $("#save_csv").attr("href", encodedUri);
+            $('#save_csv').slideDown('slow');
         }
     </script>
     </body>
