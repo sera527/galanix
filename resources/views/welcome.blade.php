@@ -63,7 +63,7 @@
         }
 
         /**
-         * преобразует массив маркеров в строку
+         * Преобразует массив маркеров в строку
          *
          * @param markersArray
          * @returns string
@@ -91,7 +91,6 @@
          * Генерирует CSV
          */
         function saveToCSV() {
-            const rows = [["name1", "city1", "some other info"], ["name2", "city2", "more info"]];
             csvContent = "data:text/csv;charset=utf-8,";
             csvContent += "№,Час публікації,Заголовок,Посилання,Важлива,Мітки\r\n";
             $.each(newsJSON, function(key, val){
