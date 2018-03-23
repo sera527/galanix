@@ -18,8 +18,8 @@
                        aria-describedby="countHelp" name="count" placeholder="">
                 <small id="countHelp" class="form-text text-muted">Не обов'язково для заповнення</small>
             </div>
-            <button onclick="getNews($('#count').val())" class="btn btn-primary">Старт</button>
-            <button onclick="resetTable()" class="btn btn-primary">Очистити</button>
+            <button id="start" onclick="getNews($('#count').val())" class="btn btn-primary">Старт</button>
+            <button id="clear" disabled="disabled" onclick="resetTable()" class="btn btn-primary">Очистити</button>
             <table style="display: none;" class="table">
                 <thead>
                     <tr>
@@ -34,12 +34,13 @@
             </table>
             <button id="csv" style="display: none;" onclick="saveToCSV()" class="btn btn-success">Зберегти в CSV</button>
             <a id="save_csv" style="display: none;" href="" class="btn btn-primary">Зберегти</a>
-            <input type="email" id="send_to" style="display: none;">
-            <button id="send" style="display: none;" onclick="sendEmail($('#send_to').val())" class="btn btn-warning">Надіслати на e-mail</button>
+            <input type="email" id="send_to" placeholder="Email" style="display: none;">
+            <button id="send" data-loading-text="Відправка..."  style="display: none;" onclick="sendEmail($('#send_to').val())" class="btn btn-warning">Надіслати на e-mail</button>
             <br>
         </div>
         <!-- Scripts -->
         <script src="{{ asset('js/jquery.min.js') }}"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script>
         /**
          * Глобальная переменная, в которой сохраняется список новостей, принятый от сервера
@@ -74,6 +75,8 @@
                 });
                 $('table').slideDown('slow');
                 $('#csv').slideDown('slow');
+                $("#start").prop("disabled", true);
+                $("#clear").prop("disabled", false);
             });
         }
 
@@ -102,6 +105,8 @@
             $('#send').slideUp('slow');
             $('table').slideUp('slow');
             $("tbody").empty();
+            $("#start").prop("disabled", false);
+            $("#clear").prop("disabled", true);
         }
 
         /**
@@ -139,12 +144,16 @@
          * @param email
          */
         function sendEmail(email) {
+            var $btn = $('#send').button('loading');
             $.post( "send_email", {email:email, news:newsJSON})
                 .done(function() {
                     alert( "Email відправлено!");
                 })
                 .fail(function(data) {
                     alert(data.responseJSON.message);
+                })
+                .always(function() {
+                    $btn.button('reset');
                 });
 
         }
