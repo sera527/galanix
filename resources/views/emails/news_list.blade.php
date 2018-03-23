@@ -1,0 +1,1 @@
+This is news list from rbc.ua.

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\YourNewsList;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 
 class NewsController extends Controller
@@ -27,6 +29,24 @@ class NewsController extends Controller
         $parsedNews = $this->getParsedNews($news);
 
         return response()->json($parsedNews);
+    }
+
+    /**
+     * Отправляет список новостей на указанный Email
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function sendEmail(Request $request)
+    {
+        $validatedData = $request->validate([
+            'email' => 'required|email',
+            'news' => 'required|array',
+        ]);
+        $csv = $this->makeCSV($validatedData['news']);
+
+        Mail::to($validatedData['email'])->send(new YourNewsList($csv));
+        return response()->json([], 200);
     }
 
     /**
@@ -73,9 +93,9 @@ class NewsController extends Controller
     private function getOneParsedNews($item)
     {
         $parsedItem = [];
+        $parsedItem['time'] = $this->getTime($item);
         $parsedItem['title'] = $this->getTitle($item);
         $parsedItem['url'] = $this->getURL($item);
-        $parsedItem['time'] = $this->getTime($item);
         $parsedItem['is_important'] = $this->getImportance($item);
         $parsedItem['markers'] = $this->getMarkers($item);
         return $parsedItem;
@@ -148,5 +168,39 @@ class NewsController extends Controller
         $regExp = '/<span class="news-feed-icon-((.|\n)+?)"><\/span>/';
         preg_match_all($regExp, $item, $markers, PREG_PATTERN_ORDER, 0);
         return $markers[1];
+    }
+
+    /**
+     * Генерирует строку в формате CSV
+     *
+     * @param array $newsArray
+     * @return bool|string
+     */
+    private function makeCSV(array $newsArray)
+    {
+        $fp = fopen('php://temp', 'rw');
+
+        fputcsv($fp, ['№', 'Час публікації', 'Заголовок', 'Посилання', 'Важлива', 'Мітки']);
+        $i = 1;
+        foreach ($newsArray as $item) {
+            if (isset($item['markers'])) {
+                $markers = '';
+                foreach ($item['markers'] as $marker) {
+                    $markers .= $marker . ', ';
+                }
+                $markers = substr($markers, 0, -2);
+                $item['markers'] = $markers;
+            } else {
+                $item['markers'] = '';
+            }
+            array_unshift($item, $i);
+
+            fputcsv($fp, $item);
+            $i++;
+        }
+        rewind($fp);
+        $csv = stream_get_contents($fp);
+        fclose($fp);
+        return $csv;
     }
 }

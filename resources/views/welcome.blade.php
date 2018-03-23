@@ -4,6 +4,7 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>Galanix</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -33,12 +34,26 @@
             </table>
             <button id="csv" style="display: none;" onclick="saveToCSV()" class="btn btn-success">Зберегти в CSV</button>
             <a id="save_csv" style="display: none;" href="" class="btn btn-primary">Зберегти</a>
+            <input type="email" id="send_to" style="display: none;">
+            <button id="send" style="display: none;" onclick="sendEmail($('#send_to').val())" class="btn btn-warning">Надіслати на e-mail</button>
             <br>
         </div>
         <!-- Scripts -->
         <script src="{{ asset('js/jquery.min.js') }}"></script>
     <script>
+        /**
+         * Глобальная переменная, в которой сохраняется список новостей, принятый от сервера
+         */
         var newsJSON;
+
+        /**
+         * Добавляет токен в заголовок, что бы сервер принимал запросы
+         */
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
 
         /**
          * Получает с сервера список новостей и выводит их в таблицу
@@ -83,6 +98,8 @@
         function resetTable() {
             $('#save_csv').slideUp('slow');
             $('#csv').slideUp('slow');
+            $('#send_to').slideUp('slow');
+            $('#send').slideUp('slow');
             $('table').slideUp('slow');
             $("tbody").empty();
         }
@@ -112,6 +129,24 @@
             var encodedUri = encodeURI(csvContent);
             $("#save_csv").attr("href", encodedUri);
             $('#save_csv').slideDown('slow');
+            $('#send_to').slideDown('slow');
+            $('#send').slideDown('slow');
+        }
+
+        /**
+         * Отправляет запрос на отправку письма по заданному адресу
+         *
+         * @param email
+         */
+        function sendEmail(email) {
+            $.post( "send_email", {email:email, news:newsJSON})
+                .done(function() {
+                    alert( "Email відправлено!");
+                })
+                .fail(function(data) {
+                    alert(data.responseJSON.message);
+                });
+
         }
     </script>
     </body>
