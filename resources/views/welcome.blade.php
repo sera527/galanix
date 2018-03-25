@@ -21,6 +21,7 @@
             <button id="start" onclick="getNews($('#count').val())" class="btn btn-primary">Старт</button>
             <button id="clear" disabled="disabled" onclick="resetTable()" class="btn btn-primary">Очистити</button>
             <table style="display: none;" class="table">
+                <caption>Дата і час парсінгу: <span id="datetime"></span></caption>
                 <thead>
                     <tr>
                         <th>№</th>
@@ -64,7 +65,8 @@
         function getNews(count) {
             $.getJSON('get_news?count='+count, function(data){
                 newsJSON = data;
-                $.each(data, function(key, val){
+                $('#datetime').text(data.datetime);
+                $.each(data.news, function(key, val){
                     key += 1;
                     trClass = '';
                     if (val.is_important) {
@@ -115,7 +117,7 @@
         function saveToCSV() {
             csvContent = "data:text/csv;charset=utf-8,";
             csvContent += "№,Час публікації,Заголовок,Посилання,Важлива,Мітки\r\n";
-            $.each(newsJSON, function(key, val){
+            $.each(newsJSON.news, function(key, val){
                 key += 1;
                 row = key + ',';
                 row += val.time + ',';
@@ -133,6 +135,7 @@
             });
             var encodedUri = encodeURI(csvContent);
             $("#save_csv").attr("href", encodedUri);
+            $("#save_csv").attr("download", 'news' + newsJSON.datetime + '.csv');
             $('#save_csv').slideDown('slow');
             $('#send_to').slideDown('slow');
             $('#send').slideDown('slow');

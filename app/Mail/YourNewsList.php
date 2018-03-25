@@ -6,13 +6,13 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Carbon\Carbon;
 
 class YourNewsList extends Mailable
 {
     use Queueable, SerializesModels;
 
     private $csv;
+    private $datetime;
 
     /**
      * Create a new message instance.
@@ -20,9 +20,10 @@ class YourNewsList extends Mailable
      * @param $csv
      * @internal param array $newsArray
      */
-    public function __construct($csv)
+    public function __construct($csv, $datetime)
     {
         $this->csv = $csv;
+        $this->datetime = $datetime;
     }
 
     /**
@@ -32,10 +33,9 @@ class YourNewsList extends Mailable
      */
     public function build()
     {
-        $current = Carbon::now();
         return $this->from('serpos95@gmail.com')
             ->view('emails.news_list')
-            ->attachData($this->csv, 'news' . $current->format('Y-m-d_H:i:s') . '.csv', [
+            ->attachData($this->csv, 'news' . $this->datetime . '.csv', [
                 'mime' => 'text/csv',
             ]);
     }

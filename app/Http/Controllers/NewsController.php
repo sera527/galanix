@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\YourNewsList;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 
@@ -26,9 +27,12 @@ class NewsController extends Controller
         }
 
         $news = $this->getNewsList($newsCount);
+        $current = Carbon::now();
         $parsedNews = $this->getParsedNews($news);
+        $response['datetime'] = $current->toDateTimeString();
+        $response['news'] = $parsedNews;
 
-        return response()->json($parsedNews);
+        return response()->json($response);
     }
 
     /**
@@ -43,9 +47,9 @@ class NewsController extends Controller
             'email' => 'required|email',
             'news' => 'required|array',
         ]);
-        $csv = $this->makeCSV($validatedData['news']);
+        $csv = $this->makeCSV($validatedData['news']['news']);
 
-        Mail::to($validatedData['email'])->send(new YourNewsList($csv));
+        Mail::to($validatedData['email'])->send(new YourNewsList($csv, $validatedData['news']['datetime']));
         return response()->json([], 200);
     }
 
