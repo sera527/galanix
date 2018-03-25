@@ -1,17 +1,6 @@
-<!doctype html>
-<html lang="{{ app()->getLocale() }}">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+@extends('app')
 
-        <title>Galanix</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    </head>
-    <body>
-        <div class="container">
-            <h1>Парсер новин сайту РБК (<a href="https://www.rbc.ua/ukr/">rbc.ua</a>)</h1>
+@section('content')
             <div class="form-group">
                 <label for="count">Кількість новин</label>
                 <input type="number" class="form-control" id="count"
@@ -38,11 +27,10 @@
             <input type="email" id="send_to" placeholder="Email" style="display: none;">
             <button id="send" data-loading-text="Відправка..."  style="display: none;" onclick="sendEmail($('#send_to').val())" class="btn btn-warning">Надіслати на e-mail</button>
             <button id="save_to_db" data-loading-text="Відправка..."  style="display: none;" onclick="saveToDataBase()" class="btn btn-danger">Зберегти в БД</button>
-            <br>
-        </div>
-        <!-- Scripts -->
-        <script src="{{ asset('js/jquery.min.js') }}"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+            <h2><a href="/parsings">Список парсінгів</a></h2>
+@endsection
+
+@section('script')
     <script>
         /**
          * Глобальная переменная, в которой сохраняется список новостей, принятый от сервера
@@ -181,5 +169,4 @@
                 });
         }
     </script>
-    </body>
-</html>
+@endsection

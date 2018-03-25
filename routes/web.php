@@ -18,3 +18,6 @@ Route::get('/', function () {
 Route::get('/get_news', 'NewsController@getNews');
 Route::post('/send_email', 'NewsController@sendEmail');
 Route::post('/save', 'NewsController@store');
+
+Route::get('/parsings', 'ParsingController@index');
+Route::get('/parsing/{id}', 'ParsingController@show')->where('id', '^[0-9]+$');
