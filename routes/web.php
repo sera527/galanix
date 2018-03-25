@@ -17,3 +17,4 @@ Route::get('/', function () {
 
 Route::get('/get_news', 'NewsController@getNews');
 Route::post('/send_email', 'NewsController@sendEmail');
+Route::post('/save', 'NewsController@store');

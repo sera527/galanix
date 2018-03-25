@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Mail\YourNewsList;
+use App\Article;
+use App\Marker;
+use App\Parsing;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
@@ -51,6 +54,40 @@ class NewsController extends Controller
 
         Mail::to($validatedData['email'])->send(new YourNewsList($csv, $validatedData['news']['datetime']));
         return response()->json([], 200);
+    }
+
+    /**
+     * Сохраняет новости в БД
+     *
+     * @param Request $request
+     */
+    public function store(Request $request)
+    {
+        $validatedData = $request->validate([
+            'news' => 'required|array',
+        ]);
+
+        $datetime = new Carbon($validatedData['news']['datetime']);
+        $parsing = new Parsing();
+        $parsing->datetime = $datetime;
+        $parsing->save();
+
+        foreach ($validatedData['news']['news'] as $item) {
+            $article = new Article();
+            $article->time = $item['time'];
+            $article->title = $item['title'];
+            $article->url = $item['url'];
+            $isImportant = $item['is_important'] === 'true'? true: false;
+            $article->is_important = $isImportant;
+            $parsing->articles()->save($article);
+
+            if (isset($item['markers'])) {
+                foreach ($item['markers'] as $m) {
+                    $marker = Marker::firstOrCreate(['name' => $m]);
+                    $article->markers()->attach($marker);
+                }
+            }
+        }
     }
 
     /**

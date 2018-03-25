@@ -37,6 +37,7 @@
             <a id="save_csv" style="display: none;" href="" class="btn btn-primary">Зберегти</a>
             <input type="email" id="send_to" placeholder="Email" style="display: none;">
             <button id="send" data-loading-text="Відправка..."  style="display: none;" onclick="sendEmail($('#send_to').val())" class="btn btn-warning">Надіслати на e-mail</button>
+            <button id="save_to_db" data-loading-text="Відправка..."  style="display: none;" onclick="saveToDataBase()" class="btn btn-danger">Зберегти в БД</button>
             <br>
         </div>
         <!-- Scripts -->
@@ -77,6 +78,7 @@
                 });
                 $('table').slideDown('slow');
                 $('#csv').slideDown('slow');
+                $('#save_to_db').slideDown('slow');
                 $("#start").prop("disabled", true);
                 $("#clear").prop("disabled", false);
             });
@@ -105,6 +107,7 @@
             $('#csv').slideUp('slow');
             $('#send_to').slideUp('slow');
             $('#send').slideUp('slow');
+            $('#save_to_db').slideUp('slow');
             $('table').slideUp('slow');
             $("tbody").empty();
             $("#start").prop("disabled", false);
@@ -159,6 +162,23 @@
                     $btn.button('reset');
                 });
 
+        }
+
+        /**
+         * Отправляет новости для сохранения в БД
+         */
+        function saveToDataBase() {
+            var $btn = $('#save_to_db').button('loading');
+            $.post( "save", {news:newsJSON})
+                .done(function() {
+                    alert( "Збережено в базу даних.");
+                })
+                .fail(function() {
+                    alert('Під час збереження в БД сталася помилка');
+                })
+                .always(function() {
+                    $btn.button('reset');
+                });
         }
     </script>
     </body>
